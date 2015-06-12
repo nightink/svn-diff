@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
+var exec = require('child_process').exec;
+
+var iconv = require('iconv-lite');
+
+var cwd = process.cwd();
+var argv = process.argv.slice(2);
+
+// set color
+var COLOR = {
+  green: 2,
+  red: 1,
+  grey: 8
+};
+
+iconv.extendNodeEncodings();
+
+function showColorStd(data) {
+  var datas = data.split(/\r{0,1}\n/gi);
+
+  datas.forEach(function(value) {
+    var color = /^\+/.test(value) ? COLOR.green :
+                  /^\-/.test(value) ? COLOR.red : COLOR.grey;
+
+    console.log('\u001b[9' + color  + 'm' + value + '\u001b[0m');
+  });
+
+  iconv.undoExtendNodeEncodings();
+}
+
+var options = {
+  cwd: cwd,
+  encoding: 'gbk'
+};
+
+// color diff file
+var diffPath = cwd + '/' + argv[0];
+if(argv.length === 1 && fs.existsSync(diffPath)) {
+  var data = fs.readFileSync(diffPath, options);
+  showColorStd(data.toString());
+  process.exit(0);
+}
+
+argv = ['svn', 'diff'].concat(argv);
+exec(argv.join(' '), options, function(err, data, stderr) {
+  showColorStd(data);
+});
