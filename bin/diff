@@ -20,12 +20,10 @@ iconv.extendNodeEncodings();
 
 function showColorStd(data) {
   var datas = data.split(/\r{0,1}\n/gi);
-
   datas.forEach(function(value) {
     var color = /^\+/.test(value) ? COLOR.green :
                   /^\-/.test(value) ? COLOR.red : COLOR.grey;
-
-    console.log('\u001b[9' + color  + 'm' + value + '\u001b[0m');
+    console.log(decorateString(value, color));
   });
 
   iconv.undoExtendNodeEncodings();
@@ -36,15 +34,23 @@ var options = {
   encoding: 'gbk'
 };
 
+function decorateString(value, color) {
+  return '\u001b[9' + color  + 'm' + value + '\u001b[0m';
+}
+
 // color diff file
 var diffPath = cwd + '/' + argv[0];
 if(argv.length === 1 && fs.existsSync(diffPath)) {
   var data = fs.readFileSync(diffPath, options);
   showColorStd(data.toString());
-  process.exit(0);
+  return process.exit(0);
 }
 
 argv = ['svn', 'diff'].concat(argv);
 exec(argv.join(' '), options, function(err, data, stderr) {
+  // simple output the stderr 
+  if (err) {
+    return console.log(decorateString(stderr, COLOR.red));
+  }
   showColorStd(data);
 });
