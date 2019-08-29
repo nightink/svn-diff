@@ -4,6 +4,7 @@
   "description": "node svn diff",
   "main": "index.js",
   "scripts": {
+    "semantic-release": "npm run build && semantic-release",
     "test": "make test"
   },
   "keywords": [
@@ -11,6 +12,12 @@
     "svn",
     "diff"
   ],
+  "release": {
+    "branche": "master",
+    "plugins": [
+      "@semantic-release/npm"
+    ]
+  },
   "bin": {
     "ndiff": "./bin/diff"
   },
@@ -26,5 +33,8 @@
   "bugs": {
     "url": "https://github.com/nightink/svn-diff/issues"
   },
-  "homepage": "https://github.com/nightink/svn-diff"
+  "homepage": "https://github.com/nightink/svn-diff",
+  "devDependencies": {
+    "semantic-release": "^15.13.24"
+  }
 }
